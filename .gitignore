@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+.venv/
+
+# Secrets / API keys
+.env
+.env.*
+secrets.toml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.log
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
