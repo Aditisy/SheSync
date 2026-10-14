@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-13",
+  "status": "local regression passed",
+  "backend_tests": 6,
+  "browser": {
+    "errors": 0,
+    "cycle_example": {
+      "starts": [
+        "2026-09-18",
+        "2026-10-13"
+      ],
+      "average_days": 25,
+      "next_period": "2026-11-07"
+    },
+    "viewports": [
+      360,
+      390,
+      768,
+      1024,
+      1440
+    ],
+    "verified": [
+      "eight tabs",
+      "local date validation",
+      "duplicate period rejection",
+      "refresh persistence",
+      "escaped notes",
+      "actual baseline inference and SHAP through website",
+      "model experiment charts",
+      "secure signup and cookie session refresh",
+      "saved reminder consent",
+      "ten-reading simulation history",
+      "no horizontal document overflow"
+    ],
+    "partial": [
+      "Maps configuration error and mocked geolocation denial only; no real Places results",
+      "Email queue and provider acceptance mocked in backend tests; no actual emails"
+    ]
+  },
+  "not_verified": [
+    "Resend live sending and inbox delivery",
+    "Real Google Places clinic results and map markers",
+    "Google Cloud API key restrictions and billing configuration",
+    "Physical wearable devices"
+  ],
+  "artifacts_preserved": [
+    "models/pcos_rf_model.pkl",
+    "models/pcos_xgb_model.pkl",
+    "models/feature_names.pkl",
+    "01_EDA_PCOS.ipynb",
+    "data/PCOS_data_without_infertility.xlsx"
+  ],
+  "publication": "No changes from this round committed or pushed"
+}

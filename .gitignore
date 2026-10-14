@@ -24,3 +24,10 @@ secrets.toml
 # OS
 .DS_Store
 Thumbs.db
+!.env.example
+instance/
+.runtime-deps/
+experiments/*.joblib
+experiments/split_manifest.json
+
+research/candidate-downloads/

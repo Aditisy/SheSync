@@ -1,0 +1,17 @@
+{
+  "mockedClinic": true,
+  "noRealProviderEmailSent": true,
+  "savedAndReloaded": true,
+  "privateRequestStatus": "request_prepared",
+  "contactLinks": 3,
+  "noUnverifiedBookingAction": true,
+  "removed": true,
+  "viewports": [
+    1440,
+    1024,
+    768,
+    390,
+    360
+  ],
+  "javascriptErrors": []
+}

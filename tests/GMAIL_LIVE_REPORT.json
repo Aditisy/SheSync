@@ -1,0 +1,64 @@
+{
+  "confirmation": {
+    "error": null,
+    "provider": "gmail",
+    "provider_id": "gmail:3c6db0821019e16f649a9c6cbe3d91d7136650a1d35fa4ba1a5ecd58f37405ec@gmail.com",
+    "status": "accepted"
+  },
+  "realSecondInboxTested": false,
+  "inboxDeliveryVerified": false,
+  "testEmail": {
+    "error": null,
+    "provider": "gmail",
+    "provider_id": "gmail:c4767096b545dd2b7458cd2d9ec6667044a3926664ca140de4f083aad2fd49c2@gmail.com",
+    "status": "accepted"
+  },
+  "submissionLookup": {
+    "note": "Gmail accepted submission. SMTP/API acceptance does not establish inbox delivery; check the sender and recipient mailboxes.",
+    "provider_event": "smtp_accepted",
+    "provider_id": "gmail:c4767096b545dd2b7458cd2d9ec6667044a3926664ca140de4f083aad2fd49c2@gmail.com",
+    "provider_reports_delivery": false
+  },
+  "confirmationRouteOpenedInBrowser": true,
+  "worker": {
+    "active": true,
+    "last_seen": "2026-10-14T08:57:11.037511+00:00",
+    "timezone": "Asia/Kolkata"
+  },
+  "appointmentBrowserTest": {
+    "mockedClinic": true,
+    "prepared": true,
+    "persistsOnReload": true,
+    "removed": true,
+    "noUnverifiedBookingAction": true
+  },
+  "viewports": [
+    1440,
+    768,
+    390,
+    360
+  ],
+  "javascriptErrors": [],
+  "scheduledWorkerSubmission": {
+    "created": "2026-10-14T08:57:11.045036+00:00",
+    "delivery_event": null,
+    "error": null,
+    "kind": "daily",
+    "provider": "gmail",
+    "provider_id": "gmail:475604d1830938202dec4f239dce114e3a424488f132255bc7529ff6403e6995@gmail.com",
+    "status": "accepted"
+  },
+  "scheduledWhileBrowserClosed": {
+    "submission": {
+      "created": "2026-10-14T08:59:15.340358+00:00",
+      "delivery_event": null,
+      "error": null,
+      "kind": "upcoming",
+      "provider": "gmail",
+      "provider_id": "gmail:9732f3065a2a05e3c63981bb88ad20b52e5c899ea53c37a1de8a3473113f0a64@gmail.com",
+      "status": "accepted"
+    },
+    "browserAlreadyClosedAt": "2026-10-14T08:58:42.026939+00:00",
+    "syntheticCycleInDisposableTestAccount": true
+  }
+}

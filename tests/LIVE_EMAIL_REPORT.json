@@ -1,0 +1,38 @@
+{
+  "liveProvider": true,
+  "recipient": "syaranaladiti@gmail.com",
+  "confirmation": {
+    "provider_id": "01a13979-412c-7613-b808-517e8a9bf53a",
+    "accepted": true,
+    "userReportedConfirmed": true,
+    "linkOpenedInBrowser": true,
+    "persistedVerified": true
+  },
+  "testEmail": {
+    "error": null,
+    "provider_id": "01a1397e-7fda-7ea0-ac33-0a534d27d225",
+    "status": "accepted"
+  },
+  "providerDeliveryLookup": {
+    "available": false,
+    "message": "page.evaluate: Error: Resend delivery lookup was rejected (HTTP 401). The key may not permit reading emails; inspect the Resend dashboard.\n    at api (http://localhost:5000/:928:472)\n    at async <anonymous>:337:30"
+  },
+  "worker": {
+    "active": true,
+    "last_seen": "2026-10-14T08:19:07.766629+00:00",
+    "timezone": "Asia/Kolkata"
+  },
+  "inboxInspectedByAgent": false,
+  "scheduledReminder": {
+    "created": "2026-10-14T08:21:07.794688+00:00",
+    "delivery_event": null,
+    "error": null,
+    "kind": "daily",
+    "provider_id": "01a1397f-fdc4-70b1-8339-cba414709ecb",
+    "status": "accepted"
+  },
+  "schedulerTest": {
+    "browserPageClosed": true,
+    "secondsWaited": 26.873
+  }
+}

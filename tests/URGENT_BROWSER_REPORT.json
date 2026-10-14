@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-14",
+  "javascriptErrors": [],
+  "quickDemo": {
+    "oneClick": true,
+    "signedInAlso": true,
+    "examples": [
+      {
+        "id": "historical-1",
+        "recordedLabel": 0,
+        "models": {
+          "random_forest": {
+            "classification": "Non-PCOS",
+            "prediction": 0,
+            "probability": 0.12
+          },
+          "xgboost": {
+            "classification": "Non-PCOS",
+            "prediction": 0,
+            "probability": 0.0022867575753480196
+          }
+        }
+      },
+      {
+        "id": "historical-2",
+        "recordedLabel": 0,
+        "models": {
+          "random_forest": {
+            "classification": "Non-PCOS",
+            "prediction": 0,
+            "probability": 0
+          },
+          "xgboost": {
+            "classification": "Non-PCOS",
+            "prediction": 0,
+            "probability": 0.0005211817915551364
+          }
+        }
+      },
+      {
+        "id": "historical-3",
+        "recordedLabel": 1,
+        "models": {
+          "random_forest": {
+            "classification": "PCOS",
+            "prediction": 1,
+            "probability": 0.78
+          },
+          "xgboost": {
+            "classification": "PCOS",
+            "prediction": 1,
+            "probability": 0.978652834892273
+          }
+        }
+      },
+      {
+        "id": "historical-13",
+        "recordedLabel": 1,
+        "models": {
+          "random_forest": {
+            "classification": "PCOS",
+            "prediction": 1,
+            "probability": 0.97
+          },
+          "xgboost": {
+            "classification": "PCOS",
+            "prediction": 1,
+            "probability": 0.997724711894989
+          }
+        }
+      }
+    ],
+    "clinicalFieldsPopulated": true
+  },
+  "maps": {
+    "manualStatus": "Google Places denied this request. Check Places API (New), billing, API restrictions and this site’s referrer permission. PLACES_SEARCH_TEXT: PERMISSION_DENIED: Error in searchByText: The caller does not have permission",
+    "nearbyStatus": "Google Places denied this request. Check Places API (New), billing, API restrictions and this site’s referrer permission. PLACES_SEARCH_TEXT: PERMISSION_DENIED: Error in searchByText: The caller does not have permission",
+    "actualResultsVerified": false,
+    "geolocationTest": "permission-denial and supplied test coordinates; actual device position not claimed",
+    "markersVerified": false
+  },
+  "email": {
+    "preferencesPersistence": true,
+    "workerHeartbeat": true,
+    "configurationStateHandled": true,
+    "realProviderTest": "Separate authorized live workflow is recorded in LIVE_EMAIL_REPORT.json"
+  },
+  "viewports": [
+    1440,
+    1024,
+    768,
+    390,
+    360
+  ]
+}

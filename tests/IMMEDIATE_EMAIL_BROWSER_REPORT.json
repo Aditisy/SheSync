@@ -1,0 +1,16 @@
+{
+  "activeProvider": "gmail",
+  "realGmailVerificationAccepted": true,
+  "realGmailTestAccepted": true,
+  "recipientMatchesCurrentForm": true,
+  "oldSavedRecipientNotSent": true,
+  "doubleClickProtected": true,
+  "testAcceptedImmediatelyAfterVerification": true,
+  "scheduledHourSetTo": 23,
+  "scheduledTestJobs": 0,
+  "directAccepted": 2,
+  "visibleCooldown": true,
+  "inboxDeliveryIndependentlyVerified": false,
+  "secondRealInboxTested": false,
+  "javascriptErrors": []
+}

@@ -1,0 +1,15 @@
+flask>=3.1,<4
+flask-cors>=6,<7
+python-dotenv>=1.2,<2
+pandas>=2.2
+numpy>=2
+scikit-learn>=1.6
+imbalanced-learn>=0.13
+xgboost>=3
+shap>=0.48
+openpyxl>=3.1
+lightgbm>=4.6
+catboost>=1.2
+matplotlib>=3.9
+tzdata
+gunicorn>=23,<24; platform_system != "Windows"

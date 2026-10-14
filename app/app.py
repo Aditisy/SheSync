@@ -15,6 +15,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+st.caption('Legacy Streamlit prototype. The updated SheSync website provides period history, exact-schema model inference and real service integrations.')
+st.link_button('Open the updated SheSync website', 'http://localhost:5000')
+
+
 st.markdown("""
 <style>
 [data-testid="stSidebar"] { background-color: #1a0a2e; }
@@ -427,6 +431,7 @@ elif page == "📅 My Cycle":
 # PAGE 4 — PCOS RISK CHECK
 # ══════════════════════════════════════════════════════════════════════════
 elif page == "🔬 PCOS Risk Check":
+    st.info("This legacy page uses a rule-based checklist. For actual saved Random Forest / XGBoost inference and SHAP, open the updated website above.")
     st.title("🔬 PCOS Risk Check")
     st.markdown("Answer in simple terms — no medical knowledge needed. Takes about 3 minutes.")
     st.markdown("""
@@ -620,16 +625,16 @@ elif page == "📡 Wearable Data":
                    "- Battery lasts 3 days")
     with h3:
         st.success("**Why it helps:**\n\n"
-                   "- Detects ovulation via temperature rise\n"
+                   "- Research readiness for temperature trends\n"
                    "- Tracks stress before periods\n"
                    "- Catches HRV changes linked to hormones\n"
-                   "- No blood tests needed")
+                   "- Requires hardware and clinical validation")
 
     st.markdown("---")
-    st.markdown("### 📊 Live Sensor Stream (Simulated)")
+    st.markdown("### 📊 Demonstration Sensor Stream")
     st.info("In the actual device, these numbers update every 60 seconds via Bluetooth.")
 
-    if st.button("▶ Start Live Reading", use_container_width=True):
+    if st.button("▶ Start demo simulation", use_container_width=True):
         prog = st.progress(0)
         status = st.empty()
         b1, b2, b3, b4 = st.columns(4)
@@ -662,7 +667,7 @@ elif page == "📡 Wearable Data":
         ax1.set_ylabel("bpm")
 
         ax2.plot(days, temp_t, marker="o", color="#6a11cb", linewidth=2)
-        ax2.axhline(36.7, color="red", linestyle="--", alpha=0.5, label="Ovulation marker")
+        ax2.axhline(36.7, color="red", linestyle="--", alpha=0.5, label="Illustrative reference line")
         ax2.set_title("Basal Body Temperature (7 days)")
         ax2.set_ylabel("°C")
         ax2.legend()
@@ -670,155 +675,17 @@ elif page == "📡 Wearable Data":
         st.pyplot(fig)
         plt.close()
 
-        st.success("📍 Temperature spike on Thursday-Friday suggests likely ovulation window "
-                   "— matches your cycle prediction.")
+        st.info("These seven-day values are demonstration samples, not measurements or evidence of ovulation.")
 
 # ══════════════════════════════════════════════════════════════════════════
 # PAGE 6 — FIND A DOCTOR
 # ══════════════════════════════════════════════════════════════════════════
 elif page == "👩‍⚕️ Find a Doctor":
-    st.title("👩‍⚕️ Find a Gynaecologist in Bengaluru")
-    st.markdown("These are real, practising gynaecologists in Bengaluru. "
-                "SheSync recommends seeing a doctor if you have irregular cycles, "
-                "suspected PCOS, or concerns about your reproductive health.")
-    st.markdown("---")
+    st.title("Find women's healthcare")
+    st.info("Real location-based Google Places discovery is available in the updated SheSync website. Static doctor ratings and booking availability are no longer displayed.")
+    st.link_button("Open real doctor discovery", "http://localhost:5000/#doctors")
+    st.link_button("Search Google Maps", "https://www.google.com/maps/search/?api=1&query=gynecologist+near+me")
 
-    doctors = [
-        {
-            "name": "Dr. Kamini A Rao",
-            "spec": "Gynaecologist & Fertility Specialist",
-            "hospital": "Milann Fertility Centre, Bengaluru",
-            "area": "Kumara Park West",
-            "exp": "35+ years",
-            "rating": "⭐ 4.9",
-            "known_for": "PCOS, infertility, menstrual disorders",
-            "phone": "080-23331002"
-        },
-        {
-            "name": "Dr. Anita Bhandari",
-            "spec": "Senior Gynaecologist & Obstetrician",
-            "hospital": "Fortis Hospital, Bengaluru",
-            "area": "Bannerghatta Road",
-            "exp": "25+ years",
-            "rating": "⭐ 4.8",
-            "known_for": "PCOS, hormonal disorders, menopause",
-            "phone": "1800-103-0777"
-        },
-        {
-            "name": "Dr. Hema Divakar",
-            "spec": "Gynaecologist & Women's Health Expert",
-            "hospital": "Divakars Hospital, Bengaluru",
-            "area": "Jayanagar",
-            "exp": "30+ years",
-            "rating": "⭐ 4.9",
-            "known_for": "Irregular cycles, PCOS, adolescent health",
-            "phone": "080-22443300"
-        },
-        {
-            "name": "Dr. Suhasini Inamdar",
-            "spec": "Gynaecologist & Laparoscopic Surgeon",
-            "hospital": "Manipal Hospital, Bengaluru",
-            "area": "Old Airport Road",
-            "exp": "20+ years",
-            "rating": "⭐ 4.7",
-            "known_for": "PCOS, endometriosis, adolescent gynaecology",
-            "phone": "080-25024444"
-        },
-        {
-            "name": "Dr. Pratima Thamke",
-            "spec": "Gynaecologist & Reproductive Medicine",
-            "hospital": "Cloudnine Hospital, Bengaluru",
-            "area": "Jayanagar / Marathahalli",
-            "exp": "18+ years",
-            "rating": "⭐ 4.8",
-            "known_for": "Perimenopause, PCOS, first-time consultations",
-            "phone": "1800-200-0202"
-        },
-        {
-            "name": "Dr. Nalini Mahajan",
-            "spec": "Gynaecologist & Fertility Specialist",
-            "hospital": "Nova IVI Fertility, Bengaluru",
-            "area": "Koramangala",
-            "exp": "28+ years",
-            "rating": "⭐ 4.8",
-            "known_for": "PCOS, irregular periods, hormonal imbalance",
-            "phone": "080-67252900"
-        },
-    ]
-
-    col1, col2, col3 = st.columns(3)
-    cols = [col1, col2, col3]
-
-    for i, doc in enumerate(doctors):
-        with cols[i % 3]:
-            st.markdown(f"""
-            <div class="doctor-card">
-            <h4>👩‍⚕️ {doc['name']}</h4>
-            <p><strong>{doc['spec']}</strong></p>
-            <p>🏥 {doc['hospital']}</p>
-            <p>📍 {doc['area']}</p>
-            <p>🕐 Experience: {doc['exp']} &nbsp; {doc['rating']}</p>
-            <p>✅ Known for: <em>{doc['known_for']}</em></p>
-            <p>📞 {doc['phone']}</p>
-            </div>
-            """, unsafe_allow_html=True)
-            st.markdown("")
-
-    st.markdown("---")
-    st.markdown("### 📋 Share Your SheSync Report With Your Doctor")
-    st.markdown("Generate a simple health summary your doctor can review before your appointment.")
-
-    if st.button("📄 Generate Health Summary", use_container_width=True):
-        today_str = date.today().strftime("%d %B %Y")
-        report = f"""
-SHESYNC HEALTH SUMMARY
-========================
-Date Generated : {today_str}
-Generated by   : SheSync v2.0 | Global Academy of Technology, AIML Dept.
-
-IMPORTANT: This is an AI-generated summary for awareness only.
-It does not constitute a medical diagnosis.
-
-PATIENT DETAILS
------------------
-Life Stage    : {life_stage}
-Total Daily Logs Recorded : {len(st.session_state.logs)}
-
-CYCLE INFORMATION
-------------------
-Last period start : {st.session_state.last_period or "Not yet logged"}
-Please discuss cycle regularity, pain levels, and symptom patterns with your doctor.
-
-RECENT SYMPTOMS (from daily logs)
------------------------------------
-"""
-        if st.session_state.logs:
-            for log in st.session_state.logs[-3:]:
-                report += f"Date: {log['date']} | Flow: {log['flow']} | Pain: {log['pain']} | Mood: {log['mood']}\n"
-                if log['symptoms']:
-                    report += f"Symptoms: {', '.join(log['symptoms'])}\n"
-        else:
-            report += "No daily logs recorded yet.\n"
-
-        report += """
-QUESTIONS TO ASK YOUR DOCTOR
-------------------------------
-- Should I get a hormonal blood test (FSH, LH, AMH, testosterone)?
-- Do I need a pelvic ultrasound?
-- Is my cycle pattern normal for my age?
-- What lifestyle changes would you recommend?
-
----
-SheSync is not a medical device. Always follow your doctor's advice.
-"""
-        st.download_button("⬇️ Download Health Summary",
-                           report,
-                           file_name="SheSync_Health_Summary.txt",
-                           use_container_width=True)
-
-# ══════════════════════════════════════════════════════════════════════════
-# PAGE 7 — SET REMINDER
-# ══════════════════════════════════════════════════════════════════════════
 elif page == "🔔 Set Reminder":
     st.title("🔔 Set a Reminder")
     st.markdown("Get a real email reminder before your next period or for your daily log.")

@@ -1,0 +1,19 @@
+{
+  "keyMatchesCurrentEnv": true,
+  "origin": "http://localhost:5000",
+  "activeProvider": "gmail",
+  "status": "Google Places denied this request. Check Places API (New), billing, API restrictions and this site’s referrer permission. PLACES_SEARCH_TEXT: PERMISSION_DENIED: Error in searchByText: The caller does not have permission",
+  "realClinics": [],
+  "referrers": [
+    "http://localhost:5000/"
+  ],
+  "responses": [
+    {
+      "httpStatus": 403,
+      "body": "[7,\"The caller does not have permission\"]"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 403 ()"
+  ]
+}

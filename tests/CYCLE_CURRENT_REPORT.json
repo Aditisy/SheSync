@@ -1,0 +1,58 @@
+{
+  "before": {
+    "average": 29,
+    "basis": "default estimate \u2014 record a second start date",
+    "history": [
+      {
+        "start": "2026-10-13",
+        "end": null
+      }
+    ],
+    "lengths": [],
+    "next_period": "2026-11-11",
+    "last": "2026-10-13",
+    "day": 2,
+    "days_remaining": 28,
+    "phase": "Menstrual",
+    "fertile_start": "2026-10-23",
+    "fertile_end": "2026-10-30",
+    "ovulation": "2026-10-28",
+    "variation": null,
+    "period_duration": 5,
+    "irregular": false,
+    "note": "Calendar estimates only; not contraception or confirmation of ovulation.",
+    "default_length": 29
+  },
+  "after": {
+    "average": 25,
+    "basis": "1 observed cycle",
+    "history": [
+      {
+        "start": "2026-09-18",
+        "end": null
+      },
+      {
+        "start": "2026-10-13",
+        "end": null
+      }
+    ],
+    "lengths": [
+      25
+    ],
+    "next_period": "2026-11-07",
+    "last": "2026-10-13",
+    "day": 2,
+    "days_remaining": 24,
+    "phase": "Menstrual",
+    "fertile_start": "2026-10-19",
+    "fertile_end": "2026-10-26",
+    "ovulation": "2026-10-24",
+    "variation": 0,
+    "period_duration": 5,
+    "irregular": false,
+    "note": "Calendar estimates only; not contraception or confirmation of ovulation.",
+    "default_length": 29
+  },
+  "addedExplicitlyUserProvidedSeptemberStart": true,
+  "existingRecordsPreserved": true
+}

@@ -1,0 +1,91 @@
+{
+  "local_source_sha256": "b663ec9f491be419718e0935eb1c5b6c4923b527282230a73cfc9aca8533f742",
+  "rows": 541,
+  "columns": 45,
+  "predictors": 41,
+  "labels": {
+    "0": 364,
+    "1": 177
+  },
+  "missing": {
+    "Marraige Status (Yrs)": 1,
+    "Fast food (Y/N)": 1,
+    "Unnamed: 44": 539
+  },
+  "coerced_missing": {
+    "Sl. No": 0,
+    "Patient File No.": 0,
+    "PCOS (Y/N)": 0,
+    " Age (yrs)": 0,
+    "Weight (Kg)": 0,
+    "Height(Cm) ": 0,
+    "BMI": 0,
+    "Blood Group": 0,
+    "Pulse rate(bpm) ": 0,
+    "RR (breaths/min)": 0,
+    "Hb(g/dl)": 0,
+    "Cycle(R/I)": 0,
+    "Cycle length(days)": 0,
+    "Marraige Status (Yrs)": 1,
+    "Pregnant(Y/N)": 0,
+    "No. of aborptions": 0,
+    "  I   beta-HCG(mIU/mL)": 0,
+    "II    beta-HCG(mIU/mL)": 1,
+    "FSH(mIU/mL)": 0,
+    "LH(mIU/mL)": 0,
+    "FSH/LH": 0,
+    "Hip(inch)": 0,
+    "Waist(inch)": 0,
+    "Waist:Hip Ratio": 0,
+    "TSH (mIU/L)": 0,
+    "AMH(ng/mL)": 1,
+    "PRL(ng/mL)": 0,
+    "Vit D3 (ng/mL)": 0,
+    "PRG(ng/mL)": 0,
+    "RBS(mg/dl)": 0,
+    "Weight gain(Y/N)": 0,
+    "hair growth(Y/N)": 0,
+    "Skin darkening (Y/N)": 0,
+    "Hair loss(Y/N)": 0,
+    "Pimples(Y/N)": 0,
+    "Fast food (Y/N)": 1,
+    "Reg.Exercise(Y/N)": 0,
+    "BP _Systolic (mmHg)": 0,
+    "BP _Diastolic (mmHg)": 0,
+    "Follicle No. (L)": 0,
+    "Follicle No. (R)": 0,
+    "Avg. F size (L) (mm)": 0,
+    "Avg. F size (R) (mm)": 0,
+    "Endometrium (mm)": 0
+  },
+  "duplicate_clinical_rows": 0,
+  "duplicate_patient_ids": 0,
+  "local_second_file_rows": 541,
+  "outlier_review": {
+    " Age (yrs)": {
+      "min": 20.0,
+      "max": 48.0,
+      "outside_1_5_iqr": 5
+    },
+    "Weight (Kg)": {
+      "min": 31.0,
+      "max": 108.0,
+      "outside_1_5_iqr": 18
+    },
+    "Height(Cm) ": {
+      "min": 137.0,
+      "max": 180.0,
+      "outside_1_5_iqr": 6
+    },
+    "BMI": {
+      "min": 12.41788175,
+      "max": 38.9,
+      "outside_1_5_iqr": 12
+    },
+    "AMH(ng/mL)": {
+      "min": 0.1,
+      "max": 66.0,
+      "outside_1_5_iqr": 52
+    }
+  }
+}
