@@ -529,6 +529,22 @@ def save_reminder_preferences(d,uid):
   old=c.execute('SELECT * FROM reminders WHERE user_id=?',(uid,)).fetchone();verified=bool(old and old['email']==email and old['verified']);token=old['verify_token'] if old and old['email']==email else token;unsub=old['unsubscribe_token'] if old else unsub
   c.execute('INSERT OR REPLACE INTO reminders VALUES(?,?,?,?,?,?,?,?)',(uid,email,int(consent),int(verified),json.dumps(safe),token,unsub,datetime.now(timezone.utc).isoformat()))
  return verified
+
+def reminder_preference_summary(raw_prefs):
+ """Return the exact opted-in categories for a human-readable email.
+
+ The scheduler remains the source of truth for when each category is sent;
+ this summary makes the verification and test messages transparent to users.
+ """
+ prefs=json.loads(raw_prefs) if isinstance(raw_prefs,str) else raw_prefs
+ hour=f"{int(prefs.get('hour',9)):02d}:00 India time"
+ selected=[]
+ if prefs.get('daily'):selected.append('• Daily symptom check-in at '+hour)
+ if prefs.get('upcoming'):selected.append('• Upcoming-period reminder '+str(int(prefs.get('days_before',3)))+' day(s) before your calendar estimate, at '+hour)
+ if prefs.get('prediction_update'):selected.append('• Prediction update when your saved calendar estimate changes')
+ if prefs.get('wellness'):selected.append('• Weekly wellness check-in on Monday at '+hour)
+ return '\n'.join(selected) if selected else '• No reminder categories are selected yet. You can update them in SheSync.'
+
 def direct_email_action(action):
  d=body();uid=session['user_id']
  # Browser supplies the current form, including its consent and recipient.
@@ -553,10 +569,13 @@ def direct_email_action(action):
   if previous['recipient']!=r['email'] or previous['kind']!=kind:return jsonify(error='This request ID belongs to a different recipient or action. Start a new request.'),409
   return direct_action_response(previous,duplicate=True)
  ip=hashlib.sha256((request.remote_addr or '').encode()).hexdigest();recipient=hashlib.sha256(r['email'].encode()).hexdigest()
- scopes=[('email-action:'+kind+':'+str(uid),1,300 if kind=='verify' else 60),('email-user-day:'+str(uid),8,86400),('email-recipient:'+recipient,8,86400),('email-ip:'+ip,20,3600),('provider-budget',int(os.getenv('EMAIL_DAILY_LIMIT','100')),86400),('provider-minute',10,60),('delivery-user:'+str(uid),10,86400),('delivery-recipient:'+recipient,20,86400)]
+ # Double-clicks are protected by the idempotency key above. The remaining
+ # limits constrain actual sending without imposing a routine countdown after
+ # every legitimate verification or test request.
+ scopes=[('email-user-day:'+str(uid),8,86400),('email-recipient:'+recipient,8,86400),('email-ip:'+ip,20,3600),('provider-budget',int(os.getenv('EMAIL_DAILY_LIMIT','100')),86400),('provider-minute',10,60),('delivery-user:'+str(uid),10,86400),('delivery-recipient:'+recipient,20,86400)]
  wait=reserve_limits(scopes)
  if wait:
-  response=jsonify(error=f'Application email cooldown: retry in {wait} seconds. No sending request was made.',retry_after_seconds=wait,cooldown_until=(datetime.now(timezone.utc)+timedelta(seconds=wait)).isoformat(),provider=configuration['provider'])
+  response=jsonify(error='Email sending is temporarily limited to protect recipients. Please try again later. No sending request was made.',retry_after_seconds=wait,cooldown_until=(datetime.now(timezone.utc)+timedelta(seconds=wait)).isoformat(),provider=configuration['provider'])
   response.headers['Retry-After']=str(wait);return response,429
  if kind=='verify':
   # A fresh link for each permitted verification send has a clear 24-hour lifetime.
@@ -567,7 +586,8 @@ def direct_email_action(action):
  with db() as c:
   claimed=c.execute("INSERT OR IGNORE INTO email_actions(key,user_id,kind,recipient,action_path,status,provider,created) VALUES(?,?,?,?,?,'sending',?,?)",(key,uid,kind,r['email'],link,configuration['provider'],created)).rowcount
   if not claimed:return direct_action_response(c.execute('SELECT * FROM email_actions WHERE key=?',(key,)).fetchone(),duplicate=True)
- text='Confirm ownership of this email address to enable your requested SheSync reminders. After confirming, return to SheSync and click Send Test Email.' if kind=='verify' else 'Your SheSync test reminder is ready. This is an immediate test of your verified email preferences, separate from your automatic reminder schedule. Take a moment to check in with yourself today.'
+ preferences=reminder_preference_summary(r['prefs'])
+ text=('Confirm ownership of this email address to enable the selected SheSync reminders. After confirming, return to SheSync and click Send Test Email.\n\nYour selected reminder preferences:\n'+preferences) if kind=='verify' else ('Your SheSync test reminder is ready. This is an immediate test of your verified email preferences, separate from your automatic reminder schedule.\n\nYour selected reminder preferences:\n'+preferences+'\n\nTake a moment to check in with yourself today.')
  try:
   provider_id=send_email(r['email'],text,key,link)
   with db() as c:c.execute("UPDATE email_actions SET status='accepted',provider_id=? WHERE key=?",(provider_id,key))
@@ -582,7 +602,7 @@ def direct_action_response(row,duplicate=False):
  result={k:row[k] for k in ['kind','status','provider','provider_id','error','recipient']};result.update(verification_required=row['kind']=='verify',duplicate=duplicate,scheduled=False)
  if row['status']=='accepted':
   result['message']='Verification email accepted for sending. Open its link, then click Send Test Email.' if row['kind']=='verify' else 'Email accepted for sending. Inbox delivery has not been independently verified.'
-  result['retry_after_seconds']=max(0,math.ceil((datetime.fromisoformat(row['created'])+timedelta(seconds=300 if row['kind']=='verify' else 60)-datetime.now(timezone.utc)).total_seconds()))
+  result['retry_after_seconds']=0
   return jsonify(result),200
  if row['status']=='sending':result['error']='This request is still sending. Refresh status; do not submit another request.';return jsonify(result),202
  return jsonify(result),502

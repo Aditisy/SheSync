@@ -146,8 +146,8 @@ class Integration(unittest.TestCase):
     with api.db() as c:c.execute('DELETE FROM rate_events')
     response=client.post('/api/reminders/test',json={'email':address,'consent':True,'prefs':{'daily':True,'hour':9}},headers=self.headers)
     self.assertEqual(response.json['status'],'accepted');self.assertEqual(response.json['provider'],'gmail')
-    self.assertEqual(client.post('/api/reminders/test',json={'email':address,'consent':True,'prefs':{'daily':True,'hour':9}},headers=self.headers).status_code,429)
-   self.assertEqual([r[0] for r in sent],['first@gmail.com','first@gmail.com','second@outlook.com','second@outlook.com'])
+    self.assertEqual(client.post('/api/reminders/test',json={'email':address,'consent':True,'prefs':{'daily':True,'hour':9}},headers=self.headers).status_code,200)
+   self.assertEqual([r[0] for r in sent],['first@gmail.com','first@gmail.com','first@gmail.com','second@outlook.com','second@outlook.com','second@outlook.com'])
    with api.db() as c:
     c.execute('DELETE FROM rate_events');c.execute("UPDATE reminders SET consent=0 WHERE email='integration@example.test'")
    api.schedule_due(datetime(2026,12,1,10,tzinfo=api.TZ));api.process_outbox();before=len(sent);api.schedule_due(datetime(2026,12,1,10,tzinfo=api.TZ));api.process_outbox();self.assertEqual(len(sent),before);self.assertEqual([r[0] for r in sent[-2:]],['first@gmail.com','second@outlook.com'])
@@ -202,7 +202,7 @@ class Integration(unittest.TestCase):
   from unittest.mock import patch
   client=api.app.test_client();self.assertEqual(client.post('/api/auth/signup',json={'name':'Direct send test','email':'direct-account@example.test','password':'test-only-strong-password'},headers=self.headers).status_code,200)
   sent=[]
-  def provider(recipient,*args):sent.append(recipient);return 'gmail:mock-direct-'+str(len(sent))
+  def provider(recipient,text,*args):sent.append((recipient,text));return 'gmail:mock-direct-'+str(len(sent))
   payload={'email':'dynamic@outlook.com','consent':True,'prefs':{'daily':True,'hour':23},'request_id':'direct-request-verify-001'}
   with patch.dict(os.environ,{'EMAIL_PROVIDER':'gmail','GMAIL_USERNAME':'sender@example.test','GMAIL_APP_PASSWORD':'mock-only'}),patch('backend_api.send_email',side_effect=provider):
    first=client.post('/api/reminders/test',json=payload,headers=self.headers);self.assertEqual(first.status_code,200);self.assertTrue(first.json['verification_required']);self.assertFalse(first.json['scheduled'])
@@ -210,11 +210,9 @@ class Integration(unittest.TestCase):
    self.assertEqual(client.get('/api/reminders/confirm/'+r['verify_token']).status_code,200)
    payload['request_id']='direct-request-test-001';test=client.post('/api/reminders/test',json=payload,headers=self.headers);self.assertEqual(test.status_code,200,test.json);self.assertEqual(test.json['kind'],'test')
    duplicate=client.post('/api/reminders/test',json=payload,headers=self.headers);self.assertTrue(duplicate.json['duplicate']);self.assertEqual(len(sent),2)
-   payload['request_id']='direct-request-test-002';cooldown=client.post('/api/reminders/test',json=payload,headers=self.headers);self.assertEqual(cooldown.status_code,429);self.assertGreater(cooldown.json['retry_after_seconds'],0);self.assertIn('Retry-After',cooldown.headers)
-   payload.update(email='changed@yahoo.com',request_id='direct-request-changed-001');changed=client.post('/api/reminders/test',json=payload,headers=self.headers);self.assertEqual(changed.status_code,429);self.assertEqual(sent,['dynamic@outlook.com','dynamic@outlook.com'])
-   # Advance the test clock, without removing any real rate records.
-   with patch('backend_api.time.time',return_value=__import__('time').time()+301):changed=client.post('/api/reminders/test',json=payload,headers=self.headers)
-   self.assertEqual(changed.status_code,200,changed.json);self.assertTrue(changed.json['verification_required']);self.assertEqual(sent[-1],'changed@yahoo.com')
+   self.assertIn('Daily symptom check-in at 23:00 India time',sent[0][1]);self.assertNotIn('Upcoming-period reminder',sent[0][1])
+   payload.update(email='changed@yahoo.com',request_id='direct-request-changed-001');changed=client.post('/api/reminders/test',json=payload,headers=self.headers)
+   self.assertEqual(changed.status_code,200,changed.json);self.assertTrue(changed.json['verification_required']);self.assertEqual(sent[-1][0],'changed@yahoo.com')
    with api.db() as c:self.assertEqual(c.execute('SELECT COUNT(*) FROM outbox WHERE user_id=?',(r['user_id'],)).fetchone()[0],0)
 
  def test_14_appointment_database_failure_is_reported(self):
