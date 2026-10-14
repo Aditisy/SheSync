@@ -267,4 +267,19 @@ class Integration(unittest.TestCase):
   self.assertIn('Hi there,',plain)
   self.assertIn('Manage reminder settings:',plain)
 
+ def test_18_password_reset_replaces_password_without_losing_account(self):
+  from unittest.mock import patch
+  client=api.app.test_client();headers=self.headers
+  email='reset-'+str(int(__import__('time').time()*1000000))+'@example.test'
+  self.assertEqual(client.post('/api/auth/signup',json={'name':'Reset User','email':email,'password':'old-password-123','stage':'Adult'},headers=headers).status_code,200)
+  with patch('backend_api.send_email',return_value='gmail:mock-reset'):
+   response=client.post('/api/auth/password-reset/request',json={'email':email},headers=headers)
+  self.assertEqual(response.status_code,200,response.json)
+  with api.db() as c:token_hash=c.execute('SELECT token_hash FROM password_resets ORDER BY created DESC LIMIT 1').fetchone()[0]
+  # The one-time token cannot be recovered from its stored hash; use a direct seeded reset record to test POST semantics.
+  token='test-reset-token-123456789';hashed=__import__('hashlib').sha256(token.encode()).hexdigest()
+  with api.db() as c:c.execute('INSERT INTO password_resets(token_hash,user_id,created,used) SELECT ?,id,?,0 FROM users WHERE email=?',(hashed,datetime.now(__import__('datetime').timezone.utc).isoformat(),email))
+  self.assertEqual(client.post('/api/auth/password-reset/'+token,data={'password':'new-password-456'}).status_code,200)
+  self.assertEqual(client.post('/api/auth/login',json={'email':email,'password':'new-password-456'},headers=headers).status_code,200)
+
 if __name__=='__main__':unittest.main(verbosity=2)

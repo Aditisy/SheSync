@@ -51,6 +51,7 @@ with db() as c:
  CREATE TABLE IF NOT EXISTS wearable(id INTEGER PRIMARY KEY,device_id TEXT,recorded TEXT,source TEXT,data TEXT);
  CREATE TABLE IF NOT EXISTS settings(user_id INTEGER PRIMARY KEY,cycle_length INTEGER DEFAULT 29);
  CREATE TABLE IF NOT EXISTS worker_status(name TEXT PRIMARY KEY,last_seen TEXT);
+ CREATE TABLE IF NOT EXISTS password_resets(token_hash TEXT PRIMARY KEY,user_id INTEGER NOT NULL,created TEXT NOT NULL,used INTEGER NOT NULL DEFAULT 0);
  ''')
 with db() as c:
  c.execute('BEGIN IMMEDIATE')
@@ -72,7 +73,9 @@ def authenticated(fn):
  return wrapped
 @app.before_request
 def protect_mutations():
- if request.method in ('POST','PUT','DELETE','PATCH') and not request.path.startswith('/api/wearable'):
+ # Password-reset POSTs arrive from the emailed one-time-token page, not from
+ # browser JavaScript. The unguessable, expiring, single-use token is its CSRF proof.
+ if request.method in ('POST','PUT','DELETE','PATCH') and not request.path.startswith(('/api/wearable','/api/auth/password-reset/')):
   if request.headers.get('X-SheSync-Client')!='web':return jsonify(error='Missing application request header.'),403
   origin=request.headers.get('Origin')
   allowed=set(os.getenv('ALLOWED_ORIGINS','http://localhost:5000,http://127.0.0.1:5000').split(','))
@@ -287,6 +290,39 @@ def login():
  with db() as c:u=c.execute('SELECT * FROM users WHERE email=?',(email,)).fetchone()
  if not u or not check_password_hash(u['password_hash'],str(d.get('password',''))):times.append(now);return jsonify(error='Incorrect email or password.'),401
  login_attempts.pop(key,None);session.clear();session['user_id']=u['id'];return jsonify(email=u['email'],name=u['name'],stage=u['stage'])
+@app.post('/api/auth/password-reset/request')
+def password_reset_request():
+ d=body();email=str(d.get('email','')).strip().lower()
+ if not email_valid(email):raise ValueError('Enter a valid email address.')
+ ip=hashlib.sha256((request.remote_addr or '').encode()).hexdigest();wait=reserve_limits([('password-reset-ip:'+ip,5,3600),('password-reset-email:'+hashlib.sha256(email.encode()).hexdigest(),3,3600)])
+ if wait:return jsonify(error=f'Please wait {wait} seconds before another reset request.',retry_after_seconds=wait),429
+ with db() as c:u=c.execute('SELECT id FROM users WHERE email=?',(email,)).fetchone()
+ # Do not disclose account existence. The email remains the ownership proof.
+ if not u:return jsonify(message='If this email has a SheSync account, a password-reset link was requested.'),200
+ config=email_configuration()
+ if not config['configured']:return jsonify(error='Email sending is not configured. Start the backend with its configured .env file.'),503
+ token=secrets.token_urlsafe(32);token_hash=hashlib.sha256(token.encode()).hexdigest();now=datetime.now(timezone.utc).isoformat()
+ with db() as c:
+  c.execute('UPDATE password_resets SET used=1 WHERE user_id=? AND used=0',(u['id'],))
+  c.execute('INSERT INTO password_resets(token_hash,user_id,created,used) VALUES(?,?,?,0)',(token_hash,u['id'],now))
+ try:send_email(email,'Use the secure link in this email to set a new SheSync password. The link expires in 30 minutes. If you did not request it, you can ignore this email.','password-reset:'+str(u['id'])+':'+token,'/api/auth/password-reset/'+token)
+ except Exception as e:
+  with db() as c:c.execute('UPDATE password_resets SET used=1 WHERE token_hash=?',(token_hash,))
+  return jsonify(error='Password-reset email could not be accepted for sending: '+str(e)[:300]),502
+ return jsonify(message='If this email has a SheSync account, a password-reset link was sent.'),200
+@app.route('/api/auth/password-reset/<token>',methods=['GET','POST'])
+def password_reset(token):
+ token_hash=hashlib.sha256(token.encode()).hexdigest()
+ with db() as c:r=c.execute('SELECT * FROM password_resets WHERE token_hash=?',(token_hash,)).fetchone()
+ if not r or r['used'] or datetime.now(timezone.utc)-datetime.fromisoformat(r['created'])>timedelta(minutes=30):return 'This password-reset link is invalid or expired. Request a new link in SheSync.',400
+ if request.method=='GET':return '''<!doctype html><title>Reset SheSync password</title><style>body{font-family:Arial;background:#faf7f4;color:#382344;max-width:460px;margin:60px auto;padding:28px}.card{background:white;padding:32px;border-radius:18px}input,button{width:100%;box-sizing:border-box;padding:13px;margin:10px 0;border-radius:9px;border:1px solid #e5c9dc}button{background:#a94380;color:white;border:0;font-weight:bold;cursor:pointer}</style><div class="card"><h1>Set a new password</h1><p>Choose at least 8 characters for your SheSync account.</p><form method="post"><input type="password" name="password" minlength="8" maxlength="128" required autocomplete="new-password" placeholder="New password"><button type="submit">Save new password</button></form></div>'''
+ password=request.form.get('password','')
+ if not 8<=len(password)<=128:return 'Password must be 8–128 characters.',400
+ with db() as c:
+  changed=c.execute('UPDATE password_resets SET used=1 WHERE token_hash=? AND used=0',(token_hash,)).rowcount
+  if not changed:return 'This password-reset link was already used.',400
+  c.execute('UPDATE users SET password_hash=? WHERE id=?',(generate_password_hash(password),r['user_id']))
+ return '<h1>SheSync</h1><p>Password updated. Return to the app and sign in with your new password.</p>'
 @app.post('/api/auth/logout')
 def logout():session.clear();return jsonify(success=True)
 @app.get('/api/auth/me')
