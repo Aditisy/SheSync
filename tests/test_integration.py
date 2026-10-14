@@ -246,4 +246,17 @@ class Integration(unittest.TestCase):
   self.assertEqual(clinic['website'],'https://clinic.example.test')
   self.assertIn('Source Street',clinic['address'])
 
+ def test_16_clinic_failover_handles_missing_map_tags(self):
+  from unittest.mock import patch
+  fallback=[
+   RuntimeError('overpass timeout'),
+   {'address':{'city':'Bengaluru'}},
+   [{'osm_type':'node','osm_id':99,'display_name':'Source Hospital, Bengaluru','namedetails':None,'extratags':None}]
+  ]
+  with patch('backend_api.public_json',side_effect=fallback):
+   response=self.call('/api/clinics/search',{'latitude':12.97,'longitude':77.59,'specialty':'Gynecologist'})
+  self.assertEqual(response.status_code,200,response.json)
+  self.assertEqual(response.json['source'],'OpenStreetMap public listings via Nominatim')
+  self.assertEqual(response.json['clinics'][0]['name'],'Source Hospital')
+
 if __name__=='__main__':unittest.main(verbosity=2)

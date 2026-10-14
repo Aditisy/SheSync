@@ -131,6 +131,27 @@ def clinic_address(tags):
  return ', '.join(x for x in parts if x)
 def clinic_search_key(latitude,longitude,city,area,specialty):
  return '|'.join((f'{latitude:.3f}' if latitude is not None else '',f'{longitude:.3f}' if longitude is not None else '',city.casefold(),area.casefold(),specialty.casefold()))
+def nominatim_clinics(city,area,latitude,longitude,specialty):
+ """Return only fields supplied by Nominatim when Overpass is busy."""
+ locality=' '.join(x for x in (area,city) if x).strip()
+ if not locality and latitude is not None:
+  reverse=public_json('https://nominatim.openstreetmap.org/reverse?'+urllib.parse.urlencode({'lat':latitude,'lon':longitude,'format':'jsonv2'}))
+  address=reverse.get('address',{})
+  locality=str(address.get('city') or address.get('town') or address.get('village') or address.get('county') or '').strip()
+ if not locality:raise RuntimeError('No city or locality was available for a public clinic search. Use Google Maps or enter a city.')
+ rows=public_json('https://nominatim.openstreetmap.org/search?'+urllib.parse.urlencode({'q':'hospital '+locality,'format':'jsonv2','limit':'20','namedetails':'1','extratags':'1'}))
+ clinics=[];seen=set()
+ for row in rows:
+  identifier='nominatim_'+str(row.get('osm_type',''))+'_'+str(row.get('osm_id',''))
+  if identifier in seen:continue
+  seen.add(identifier);details=row.get('namedetails') or {};extra=row.get('extratags') or {}
+  name=str(details.get('name') or row.get('name') or str(row.get('display_name','')).split(',')[0]).strip()
+  if not name:continue
+  phone=str(extra.get('phone') or extra.get('contact:phone') or '').strip()[:80];website=str(extra.get('website') or extra.get('contact:website') or '').strip()[:500]
+  if website and not re.fullmatch(r'https?://[^\s]+',website):website=''
+  address=str(row.get('display_name','')).strip()[:500];destination=address or name
+  clinics.append({'id':identifier,'name':name[:160],'specialty':'Public healthcare listing','address':address,'phone':phone,'website':website,'source':'OpenStreetMap public listing via Nominatim','directions':'https://www.google.com/maps/dir/?api=1&destination='+urllib.parse.quote(destination)})
+ return clinics
 @app.post('/api/clinics/search')
 @authenticated
 def clinics_search():
@@ -154,7 +175,11 @@ def clinics_search():
   # A compact radius keeps the public service responsive in dense cities.
   radius=3000
   query='[out:json][timeout:8];nwr["amenity"~"^(clinic|doctors|hospital)$"]["name"](around:%d,%.6f,%.6f);out center tags 20;'%(radius,latitude,longitude)
-  raw=public_json('https://overpass-api.de/api/interpreter','POST',urllib.parse.urlencode({'data':query}).encode('utf-8'),'application/x-www-form-urlencoded')
+  try:raw=public_json('https://overpass-api.de/api/interpreter','POST',urllib.parse.urlencode({'data':query}).encode('utf-8'),'application/x-www-form-urlencoded')
+  except RuntimeError:
+   clinics=nominatim_clinics(city,area,latitude,longitude,specialty)
+   result={'clinics':clinics,'source':'OpenStreetMap public listings via Nominatim','location':{'latitude':latitude,'longitude':longitude},'notice':'Public map listings are temporarily using Nominatim. Details can be incomplete; verify specialty, contact details and availability with the clinic.'}
+   CLINIC_CACHE[key]=(time.time(),result);return jsonify(**result,cached=False)
   seen=set();clinics=[]
   for item in raw.get('elements',[]):
    tags=item.get('tags',{});name=str(tags.get('name','')).strip();identifier=str(item.get('type',''))+'/'+str(item.get('id',''))
