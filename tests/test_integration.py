@@ -259,4 +259,12 @@ class Integration(unittest.TestCase):
   self.assertEqual(response.json['source'],'OpenStreetMap public listings via Nominatim')
   self.assertEqual(response.json['clinics'][0]['name'],'Source Hospital')
 
+ def test_17_test_reminder_has_html_and_plain_body(self):
+  content,plain=api.email_providers.message('reader@example.test','Your SheSync test reminder is ready.\nTake a moment to check in with yourself today.','direct:1:body-check','/api/reminders/unsubscribe/test-token')
+  self.assertIn('Your SheSync test reminder',content)
+  self.assertIn('Take a moment to check in with yourself today.',content)
+  self.assertIn('Manage reminder settings',content)
+  self.assertIn('Hi there,',plain)
+  self.assertIn('Manage reminder settings:',plain)
+
 if __name__=='__main__':unittest.main(verbosity=2)
